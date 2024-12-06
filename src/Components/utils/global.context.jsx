@@ -4,17 +4,16 @@ import axios from "axios";
 export const initialState = { theme: "light", data: [] };
 
 const ACTIONS = {
-  TOGGLE_THEME: "TOGGLE_THEME",
+  SET_THEME: "SET_THEME",
   SET_DATA: "SET_DATA",
 };
 
-// Reducer para manejar el estado
 const reducer = (state, action) => {
   switch (action.type) {
-    case ACTIONS.TOGGLE_THEME:
+    case ACTIONS.SET_THEME:
       return {
         ...state,
-        theme: state.theme === "light" ? "dark" : "light",
+        theme: action.payload, 
       };
     case ACTIONS.SET_DATA:
       return {
@@ -26,13 +25,10 @@ const reducer = (state, action) => {
   }
 };
 
-// Crear el contexto
 export const ContextGlobal = createContext(undefined);
 
-// Proveedor del contexto
 export const ContextProvider = ({ children }) => {
-  //Aqui deberan implementar la logica propia del Context, utilizando el hook useMemo
-  const [state, dispatch] = useReducer(reducer, initialState); // Función para obtener datos de la API
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   const fetchData = async () => {
     try {
@@ -43,19 +39,23 @@ export const ContextProvider = ({ children }) => {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  }; // Llamar a fetchData al montar el componente
+  };
 
   useEffect(() => {
     fetchData();
-  }, []); // Usar useMemo para optimizar el valor del contexto
+  }, []);
 
   const value = useMemo(
     () => ({
       theme: state.theme,
       data: state.data,
-      toggleTheme: () => dispatch({ type: ACTIONS.TOGGLE_THEME }),
+      setTheme: (theme) =>
+        dispatch({ type: ACTIONS.SET_THEME, payload: theme }), 
     }),
-    [state]
+    [state.theme, state.data]
   );
-  return <ContextGlobal.Provider value={value}>{children}</ContextGlobal.Provider>;
+
+  return (
+    <ContextGlobal.Provider value={value}>{children}</ContextGlobal.Provider>
+  );
 };
