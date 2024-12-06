@@ -1,9 +1,8 @@
-import React, { createContext, useReducer, useMemo, useEffect } from "react";
+import React, { createContext, useReducer, useEffect, useMemo } from "react";
 import axios from "axios";
 
 export const initialState = { theme: "light", data: [] };
 
-// Tipos de acción para el reducer
 const ACTIONS = {
   TOGGLE_THEME: "TOGGLE_THEME",
   SET_DATA: "SET_DATA",
@@ -44,13 +43,12 @@ export const ContextProvider = ({ children }) => {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  };
-  // Llamar a fetchData al montar el componente
+  }; // Llamar a fetchData al montar el componente
+
   useEffect(() => {
     fetchData();
-  }, []);
+  }, []); // Usar useMemo para optimizar el valor del contexto
 
-  // Usar useMemo para optimizar el valor del contexto
   const value = useMemo(
     () => ({
       theme: state.theme,
@@ -59,10 +57,5 @@ export const ContextProvider = ({ children }) => {
     }),
     [state]
   );
-
-  return (
-    <ContextGlobal.Provider value={{ value }}>
-      {children}
-    </ContextGlobal.Provider>
-  );
+  return <ContextGlobal.Provider value={value}>{children}</ContextGlobal.Provider>;
 };
